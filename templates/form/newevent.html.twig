@@ -1,0 +1,18 @@
+{# templates/form/newevent.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %} Nouveau évènement {% endblock %}
+
+{% block body %}
+<main class="container">
+    <section class="row">
+        <div class="col-12">
+            <h1>Ajouter un nouvel évènement</h1>
+            {% include 'form/_event.html.twig' %}
+        </div>
+
+    </section>
+</main>
+{% endblock %}
+

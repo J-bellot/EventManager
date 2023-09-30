@@ -15,28 +15,27 @@
         {% endblock %}
     </head>
     <body>
+        
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="#">Navbar w/ text</a>
+            <a class="navbar-brand" href="/">LemonIntApp</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="/new-event">Créer un évènement <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Features</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Pricing</a>
+                    <a class="nav-link" href="#">Mes évènements</a>
                 </li>
                 </ul>
                 <span class="navbar-text">
-                Navbar text with an inline element
+                Là je sais si je suis co ou pas
                 </span>
             </div>
         </nav>
+        {{ include('_partials/_flash.html.twig') }}
         {% block body %}{% endblock %}
     </body>
 </html>
