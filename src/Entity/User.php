@@ -34,10 +34,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Event::class, orphanRemoval: true)]
     private Collection $events;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Eventattendee::class, orphanRemoval: true)]
+    private Collection $eventattendees;
+
 
     public function __construct()
     {
         $this->events = new ArrayCollection();
+        $this->eventattendees = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -143,5 +147,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __toString()
     {
         return $this->getEmail();
+    }
+
+    /**
+     * @return Collection<int, Eventattendee>
+     */
+    public function getEventattendees(): Collection
+    {
+        return $this->eventattendees;
+    }
+
+    public function addEventattendee(Eventattendee $eventattendee): static
+    {
+        if (!$this->eventattendees->contains($eventattendee)) {
+            $this->eventattendees->add($eventattendee);
+            $eventattendee->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEventattendee(Eventattendee $eventattendee): static
+    {
+        if ($this->eventattendees->removeElement($eventattendee)) {
+            // set the owning side to null (unless already changed)
+            if ($eventattendee->getUser() === $this) {
+                $eventattendee->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

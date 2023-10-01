@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes évènements{% endblock %}
+
+{% block body %}
+<h1>Liste des événements</h1>
+
+<ul>
+    {% for event in events %}
+        <li>{{ event.title }}</li>
+        {# Vous pouvez afficher d'autres informations ici, par exemple : {{ event.description }}, {{ event.dateHeureDebut }}, etc. #}
+    {% endfor %}
+</ul>
+{% endblock %}

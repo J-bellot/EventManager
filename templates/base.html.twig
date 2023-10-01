@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        <title>{% block title %}LemonIntApp{% endblock %}</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
         {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
@@ -23,19 +23,25 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/new-event">Créer un évènement <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Mes évènements</a>
-                </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/new-event">Créer un évènement <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/my-events">Mes évènements</a>
+                    </li>
                 </ul>
                 <span class="navbar-text">
-                Là je sais si je suis co ou pas
+                    <ul  class="navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/connexion">Se connecter<span class="sr-only">(current)</span></a>
+                        </li>
+                    </ul>
                 </span>
             </div>
         </nav>
         {{ include('_partials/_flash.html.twig') }}
-        {% block body %}{% endblock %}
+        <div class="container my-5">
+            {% block body %}{% endblock %}
+        </div>
     </body>
 </html>

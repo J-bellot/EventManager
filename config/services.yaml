@@ -6,6 +6,13 @@
 parameters:
 
 services:
+    App\DataFixtures\UserFixtures:
+            tags:
+                - { name: 'doctrine.fixture.orm', priority: 10 }
+
+    App\DataFixtures\EventFixtures:
+        tags:
+            - { name: 'doctrine.fixture.orm', priority: 20 }
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.

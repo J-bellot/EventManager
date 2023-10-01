@@ -9,21 +9,40 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class EventController extends AbstractController
 {
     #[Route('/', name: 'homepage')]
-    public function index(): Response
+    public function index(EntityManagerInterface $entityManager): Response
     {
+        $eventsRepository = $entityManager->getRepository(Event::class);
+        $events = $eventsRepository->findBy([], ['beginAt' => 'ASC']);
+
         return $this->render('event/index.html.twig', [
+            'events' => $events,
+            'controller_name' => 'EventController',
+        ]);
+    }
+
+
+    #[Route('/my-events', name: 'myevents')]
+    public function myevents(EntityManagerInterface $entityManager): Response
+    {
+        $eventsRepository = $entityManager->getRepository(Event::class);
+    
+        $currentUser = $this->getUser();
+        
+        $events = $eventsRepository->findBy(['creator' => $currentUser]);
+
+        return $this->render('event/index.html.twig', [
+            'events' => $events, // Transmettez les événements au template.
             'controller_name' => 'EventController',
         ]);
     }
 
 
     #[Route('/new-event', name: 'newevent')]
-    public function add(Request $request, EntityManagerInterface $entityManagerInterface, UserInterface $userInterface): Response
+    public function add(Request $request, EntityManagerInterface $entityManagerInterface): Response
     {
         $event = new Event();
 
@@ -54,7 +73,7 @@ class EventController extends AbstractController
     }
 
     #[Route('/edit-event/{id}', name: 'editevent')]
-    public function edit(Request $request, EntityManagerInterface $entityManager, UserInterface $userInterface, int $id): Response
+    public function edit(Request $request, EntityManagerInterface $entityManager, int $id): Response
     {
         $event = $entityManager->getRepository(Event::class)->find($id);
 
@@ -83,6 +102,4 @@ class EventController extends AbstractController
             'event' => $event,
         ]);
     }
-
-
 }

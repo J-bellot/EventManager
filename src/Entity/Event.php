@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\EventRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -32,6 +34,14 @@ class Event
     #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $creator = null;
+
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: Eventattendee::class, orphanRemoval: true)]
+    private Collection $eventattendees;
+
+    public function __construct()
+    {
+        $this->eventattendees = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -106,6 +116,36 @@ class Event
     public function setCreator(?User $creator): static
     {
         $this->creator = $creator;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Eventattendee>
+     */
+    public function getEventattendees(): Collection
+    {
+        return $this->eventattendees;
+    }
+
+    public function addEventattendee(Eventattendee $eventattendee): static
+    {
+        if (!$this->eventattendees->contains($eventattendee)) {
+            $this->eventattendees->add($eventattendee);
+            $eventattendee->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEventattendee(Eventattendee $eventattendee): static
+    {
+        if ($this->eventattendees->removeElement($eventattendee)) {
+            // set the owning side to null (unless already changed)
+            if ($eventattendee->getEvent() === $this) {
+                $eventattendee->setEvent(null);
+            }
+        }
 
         return $this;
     }
