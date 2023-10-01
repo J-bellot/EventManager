@@ -35,6 +35,7 @@ class EventController extends AbstractController
         $events = $eventsRepository->findBy(['creator' => $currentUser]);
 
         return $this->render('event/index.html.twig', [
+            'myevents' => true,
             'events' => $events, // Transmettez les événements au template.
             'controller_name' => 'EventController',
         ]);

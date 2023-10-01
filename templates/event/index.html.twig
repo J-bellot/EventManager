@@ -11,7 +11,14 @@
                 <th>Date</th>
                 <th>Horaires</th>
                 <th>Titre</th>
-                <th>Inscription</th>
+                {% if myevents is defined %}
+                    <th>Modifer</th>
+                    <th>Supprimer</th>
+                {% else %}
+                    <th>Inscription</th>
+                {% endif %}
+                
+
             </tr>
         </thead>
         <tbody>
@@ -20,7 +27,19 @@
                     <td>{{ event.beginAt|date('Y-m-d') }}</td>
                     <td>{{ event.beginAt|date('H:i') }} - {{ event.endAt|date('H:i') }}</td>
                     <td>{{ event.title }}</td>
-                    <td>
+                    {% if myevents is defined %}
+                        <td>
+                            <a href="/edit-event/{{ event.id }}" class="btn btn-info">
+                                Modifier
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/delete-event/{{ event.id }}" class="btn btn-danger">
+                                Supprimer
+                            </a>
+                        </td>
+                    {% else %}
+                        <td>
                         {% set isUserRegistered = app.user and event.eventAttendees.contains(app.user) %}
                         {% if app.user %}
                             {% for attendee in event.eventAttendees %}
@@ -39,6 +58,7 @@
                             </a>
                         {% endif %}
                     </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>
