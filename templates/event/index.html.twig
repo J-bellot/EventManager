@@ -21,9 +21,23 @@
                     <td>{{ event.beginAt|date('H:i') }} - {{ event.endAt|date('H:i') }}</td>
                     <td>{{ event.title }}</td>
                     <td>
-                        <a href="/eventattendee/register/{{ event.id}}" class="btn btn-primary">
-                            S'inscrire
-                        </a>
+                        {% set isUserRegistered = app.user and event.eventAttendees.contains(app.user) %}
+                        {% if app.user %}
+                            {% for attendee in event.eventAttendees %}
+                                {% if attendee.user[0] == app.user %}
+                                    {% set isUserRegistered = true %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% if isUserRegistered %}
+                            <a href="{{ path('unregister_for_event', {'event_id': event.id}) }}" class="btn btn-danger">
+                                Se désinscrire
+                            </a>
+                        {% else %}
+                            <a href="{{ path('register_for_event', {'event_id': event.id}) }}" class="btn btn-primary">
+                                S'inscrire
+                            </a>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

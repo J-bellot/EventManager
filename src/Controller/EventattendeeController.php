@@ -1,43 +1,97 @@
 <?php
 
-use App\Entity\Eventattendee;
-use App\Entity\User;
+namespace App\Controller;
+
 use App\Entity\Event;
+use App\Entity\EventAttendee;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-#[Route('/eventattendee')]
-class EventattendeeController extends AbstractController
+class EventAttendeeController extends AbstractController
 {
-    #[Route('/register/{eventId}', name: 'register_event')]
-    public function register(Request $request, EntityManagerInterface $entityManager, int $eventId): Response
+    #[Route('/register/{event_id}', name: 'register_for_event')]
+    public function registerForEvent($event_id, EntityManagerInterface $entityManager): Response
     {
-        // Récupérez l'utilisateur connecté (vous devrez peut-être ajuster la logique d'authentification si nécessaire)
-        $user = $this->getUser();
+        // Récupérer l'événement à partir de l'ID
+        $event = $entityManager->getRepository(Event::class)->find($event_id);
 
-        // Récupérez l'événement en fonction de l'ID passé en paramètre
-        $event = $entityManager->getRepository(Event::class)->find($eventId);
-
-        // Vérifiez que l'utilisateur et l'événement existent
-        if (!$user || !$event) {
-            throw $this->createNotFoundException('Utilisateur ou événement non trouvé.');
+        if (!$event) {
+            throw $this->createNotFoundException('L\'événement avec l\'ID ' . $event_id . ' n\'existe pas.');
         }
 
-        // Créez une nouvelle instance de Eventattendee et associez l'utilisateur et l'événement
-        $eventAttendee = new Eventattendee();
-        $eventAttendee->setUser($user);
-        $eventAttendee->setEvent($event);
+        // Récupérer l'utilisateur actuellement connecté
+        /** @var UserInterface $user */
+        $user = $this->getUser();
 
-        // Enregistrez l'inscription dans la base de données
-        $entityManager->persist($eventAttendee);
-        $entityManager->flush();
+        // Rechercher l'inscription de l'utilisateur à cet événement
+        $eventAttendee = null;
 
-        // Vous pouvez rediriger l'utilisateur vers une page de confirmation ou une autre page
-        // après avoir effectué l'inscription.
-        // Par exemple, redirigez l'utilisateur vers la page d'accueil.
+        foreach ($user->getEventAttendees() as $attendee) {
+            if ($attendee->getEvent()->contains($event)) {
+                $eventAttendee = $attendee;
+                break;
+            }
+        }
+
+        if ($eventAttendee) {
+            $this->addFlash('warning', 'Vous êtes déjà inscrit à cet événement.');
+        } else {
+            // Créer un nouvel objet EventAttendee
+            $eventAttendee = new EventAttendee();
+
+            // Associer l'utilisateur et l'événement à EventAttendee
+            $eventAttendee->addEvent($event);
+            $eventAttendee->addUser($user);
+
+            // Enregistrer l'objet EventAttendee dans la base de données
+            $entityManager->persist($eventAttendee);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Inscription réussie');
+        }
+
         return $this->redirectToRoute('homepage');
     }
+
+
+    #[Route('/unregister/{event_id}', name: 'unregister_for_event')]
+    public function unregisterForEvent($event_id, EntityManagerInterface $entityManager): Response
+    {
+        // Récupérer l'événement à partir de l'ID
+        $event = $entityManager->getRepository(Event::class)->find($event_id);
+
+        if (!$event) {
+            throw $this->createNotFoundException('L\'événement avec l\'ID ' . $event_id . ' n\'existe pas.');
+        }
+
+        // Récupérer l'utilisateur actuellement connecté
+        /** @var UserInterface $user */
+        $user = $this->getUser();
+
+        // Rechercher l'inscription de l'utilisateur à cet événement
+        $eventAttendee = null;
+
+        foreach ($user->getEventAttendees() as $attendee) {
+            if ($attendee->getEvent()[0] === $event) {
+                $eventAttendee = $attendee;
+                break;
+            }
+        }
+
+        if (!$eventAttendee) {
+            $this->addFlash('error', 'Vous n\'êtes pas inscrit à cet événement.');
+        } else {
+            // Supprimer l'inscription de l'utilisateur à cet événement
+            $entityManager->remove($eventAttendee);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Désinscription réussie');
+        }
+
+        return $this->redirectToRoute('homepage');
+    }
+
 }

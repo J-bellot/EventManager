@@ -16,32 +16,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180, unique: true)]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'json')]
     private array $roles = [];
 
     /**
      * @var string The hashed password
      */
-    #[ORM\Column]
+    #[ORM\Column(type: 'string')]
     private ?string $password = null;
 
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Event::class, orphanRemoval: true)]
     private Collection $events;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Eventattendee::class, orphanRemoval: true)]
-    private Collection $eventattendees;
-
+    #[ORM\ManyToMany(targetEntity: EventAttendee::class, mappedBy: 'user')]
+    private Collection $eventAttendees;
 
     public function __construct()
     {
-        $this->events = new ArrayCollection();
-        $this->eventattendees = new ArrayCollection();
+        $this->eventAttendees = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -150,30 +148,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Eventattendee>
+     * @return Collection<int, EventAttendee>
      */
-    public function getEventattendees(): Collection
+    public function getEventAttendees(): Collection
     {
-        return $this->eventattendees;
+        return $this->eventAttendees;
     }
 
-    public function addEventattendee(Eventattendee $eventattendee): static
+    public function addEventAttendee(EventAttendee $eventAttendee): static
     {
-        if (!$this->eventattendees->contains($eventattendee)) {
-            $this->eventattendees->add($eventattendee);
-            $eventattendee->setUser($this);
+        if (!$this->eventAttendees->contains($eventAttendee)) {
+            $this->eventAttendees->add($eventAttendee);
+            $eventAttendee->addUser($this);
         }
 
         return $this;
     }
 
-    public function removeEventattendee(Eventattendee $eventattendee): static
+    public function removeEventAttendee(EventAttendee $eventAttendee): static
     {
-        if ($this->eventattendees->removeElement($eventattendee)) {
-            // set the owning side to null (unless already changed)
-            if ($eventattendee->getUser() === $this) {
-                $eventattendee->setUser(null);
-            }
+        if ($this->eventAttendees->removeElement($eventAttendee)) {
+            $eventAttendee->removeUser($this);
         }
 
         return $this;

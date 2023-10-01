@@ -2,27 +2,27 @@
 
 namespace App\Repository;
 
-use App\Entity\Eventattendee;
+use App\Entity\EventAttendee;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Eventattendee>
+ * @extends ServiceEntityRepository<EventAttendee>
  *
- * @method Eventattendee|null find($id, $lockMode = null, $lockVersion = null)
- * @method Eventattendee|null findOneBy(array $criteria, array $orderBy = null)
- * @method Eventattendee[]    findAll()
- * @method Eventattendee[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method EventAttendee|null find($id, $lockMode = null, $lockVersion = null)
+ * @method EventAttendee|null findOneBy(array $criteria, array $orderBy = null)
+ * @method EventAttendee[]    findAll()
+ * @method EventAttendee[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class EventattendeeRepository extends ServiceEntityRepository
+class EventAttendeeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Eventattendee::class);
+        parent::__construct($registry, EventAttendee::class);
     }
 
 //    /**
-//     * @return Eventattendee[] Returns an array of Eventattendee objects
+//     * @return EventAttendee[] Returns an array of EventAttendee objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class EventattendeeRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Eventattendee
+//    public function findOneBySomeField($value): ?EventAttendee
 //    {
 //        return $this->createQueryBuilder('e')
 //            ->andWhere('e.exampleField = :val')
