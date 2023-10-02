@@ -4,7 +4,13 @@
 
 {% block body %}
     <h1>Liste des événements</h1>
-
+    {% if filterForm is defined %}
+        {{ form_start(filterForm) }}
+        {{ form_widget(filterForm.startDate) }}
+        {{ form_widget(filterForm.endDate) }}
+        {{ form_widget(filterForm.filter) }}
+        {{ form_end(filterForm) }}
+    {% endif %}
     <table class="table table-striped">
         <thead>
             <tr>
