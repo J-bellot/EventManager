@@ -21,14 +21,24 @@ class EventFixtures extends Fixture
         foreach ($existingUsers as $user) {
             // Créez 2 événements pour chaque utilisateur
             for ($j = 1; $j <= 2; $j++) {
-                $event = new Event();//'Evenement'.$j
+                $event = new Event();
                 $event->setTitle(implode(' ', $faker->words(5)));
                 $event->setDescription(implode(' ', $faker->words(50)));
-                $event->setBeginAt($faker->dateTimeBetween('now', '+30 days'));
-                $event->setEndAt($faker->dateTimeBetween($event->getBeginAt(), '+60 days'));
+        
+                // Générez des dates aléatoires avec Faker
+                $beginAt = $faker->dateTimeBetween('now', '+30 days');
+                $endAt = $faker->dateTimeBetween($beginAt, '+60 days');
+        
+                // Convertissez les objets DateTime en DateTimeImmutable
+                $beginAt = \DateTimeImmutable::createFromMutable($beginAt);
+                $endAt = \DateTimeImmutable::createFromMutable($endAt);
+        
+                $event->setBeginAt($beginAt);
+                $event->setEndAt($endAt);
+        
                 $event->setPlace($faker->address);
                 $event->setCreator($user);
-
+        
                 $manager->persist($event);
             }
         }

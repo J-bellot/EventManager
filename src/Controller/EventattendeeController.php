@@ -8,12 +8,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class EventAttendeeController extends AbstractController
 {
     #[Route('/register/{event_id}', name: 'register_for_event')]
-    public function registerForEvent($event_id, EntityManagerInterface $entityManager): Response
+    public function registerForEvent($event_id, EntityManagerInterface $entityManager, Request $request): Response
     {
         // Récupérer l'événement à partir de l'ID
         $event = $entityManager->getRepository(Event::class)->find($event_id);
@@ -26,39 +27,46 @@ class EventAttendeeController extends AbstractController
         /** @var UserInterface $user */
         $user = $this->getUser();
 
-        // Rechercher l'inscription de l'utilisateur à cet événement
-        $eventAttendee = null;
+        if ($user != null){
+            // Rechercher l'inscription de l'utilisateur à cet événement
+            $eventAttendee = null;
 
-        foreach ($user->getEventAttendees() as $attendee) {
-            if ($attendee->getEvent()->contains($event)) {
-                $eventAttendee = $attendee;
-                break;
+            foreach ($user->getEventAttendees() as $attendee) {
+                if ($attendee->getEvent()->contains($event)) {
+                    $eventAttendee = $attendee;
+                    break;
+                }
             }
+
+            if ($eventAttendee) {
+                $this->addFlash('warning', 'Vous êtes déjà inscrit à cet événement.');
+            } else {
+                // Créer un nouvel objet EventAttendee
+                $eventAttendee = new EventAttendee();
+
+                // Associer l'utilisateur et l'événement à EventAttendee
+                $eventAttendee->addEvent($event);
+                $eventAttendee->addUser($user);
+
+                // Enregistrer l'objet EventAttendee dans la base de données
+                $entityManager->persist($eventAttendee);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Inscription réussie');
+            }
+
+            // Récupérer l'URL précédente à partir de la session
+            $referer = $request->headers->get('referer');
+            // Rediriger l'utilisateur vers l'URL précédente
+            return $this->redirect($referer);
         }
-
-        if ($eventAttendee) {
-            $this->addFlash('warning', 'Vous êtes déjà inscrit à cet événement.');
-        } else {
-            // Créer un nouvel objet EventAttendee
-            $eventAttendee = new EventAttendee();
-
-            // Associer l'utilisateur et l'événement à EventAttendee
-            $eventAttendee->addEvent($event);
-            $eventAttendee->addUser($user);
-
-            // Enregistrer l'objet EventAttendee dans la base de données
-            $entityManager->persist($eventAttendee);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Inscription réussie');
-        }
-
+        
         return $this->redirectToRoute('homepage');
     }
 
 
     #[Route('/unregister/{event_id}', name: 'unregister_for_event')]
-    public function unregisterForEvent($event_id, EntityManagerInterface $entityManager): Response
+    public function unregisterForEvent($event_id, EntityManagerInterface $entityManager, Request $request): Response
     {
         // Récupérer l'événement à partir de l'ID
         $event = $entityManager->getRepository(Event::class)->find($event_id);
@@ -91,7 +99,11 @@ class EventAttendeeController extends AbstractController
             $this->addFlash('success', 'Désinscription réussie');
         }
 
-        return $this->redirectToRoute('homepage');
+        // Récupérer l'URL précédente à partir de la session
+        $referer = $request->headers->get('referer');
+        
+        // Rediriger l'utilisateur vers l'URL précédente
+        return $this->redirect($referer);
     }
 
 }

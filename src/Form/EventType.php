@@ -3,12 +3,10 @@
 namespace App\Form;
 
 use App\Entity\Event;
-use App\Entity\User;
-use Doctrine\ORM\Mapping\Entity;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 
 class EventType extends AbstractType
 {
@@ -21,11 +19,15 @@ class EventType extends AbstractType
             ->add('description', options:[
                 'label' => 'Description'
             ])
-            ->add('beginAt', options:[
-                'label' => 'Date et heure de début'
+            ->add('beginAt', DateTimeType::class, [
+                'label' => 'Date et heure de début',
+                'widget' => 'single_text',
+                'input' => 'datetime_immutable'
             ])
-            ->add('endAt', options:[
-                'label' => 'Date et heure de fin'
+            ->add('endAt', DateTimeType::class, [
+                'label' => 'Date et heure de fin',
+                'widget' => 'single_text',
+                'input' => 'datetime_immutable'
             ])
             ->add('place', options:[
                 'label' => 'Lieu de l\'évènement'

@@ -3,29 +3,94 @@
 {% block title %}Log in!{% endblock %}
 
 {% block body %}
-<form method="post">
+
     {% if error %}
         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
     {% endif %}
 
     {% if app.user %}
         <div class="mb-3">
-            Vous êtes connecté(e) comme {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Se déconnecter</a>
+            Vous êtes connecté(e) en tant que {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Se déconnecter</a>
         </div>
+
+        <h1>Les évènements que vous avez créé</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Horaires</th>
+                    <th>Titre</th>
+                    {% if myevents is defined %}
+                        <th>Modifer</th>
+                        <th>Supprimer</th>
+                    {% elseif myevents %}
+                        <th>Inscription</th>
+                    {% endif %}
+                    
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in userEvents %}
+                    <tr>
+                        <td>{{ event.beginAt|date('Y-m-d') }}</td>
+                        <td>{{ event.beginAt|date('H:i') }} - {{ event.endAt|date('H:i') }}</td>
+                        <td>{{ event.title }}</td>
+                        {% if myevents is defined %}
+                            <td>
+                                <a href="/edit-event/{{ event.id }}" class="btn btn-info">
+                                    Modifier
+                                </a>
+                            </td>
+                            <td>
+                                <a href="/delete-event/{{ event.id }}" class="btn btn-danger">
+                                    Supprimer
+                                </a>
+                            </td>
+                        {% else %}
+                            <td>
+                            {% set isUserRegistered = app.user and event.eventAttendees.contains(app.user) %}
+                            {% if app.user %}
+                                {% for attendee in event.eventAttendees %}
+                                    {% if attendee.user[0] == app.user %}
+                                        {% set isUserRegistered = true %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if isUserRegistered %}
+                                <a href="{{ path('unregister_for_event', {'event_id': event.id}) }}" class="btn btn-danger">
+                                    Se désinscrire
+                                </a>
+                            {% else %}
+                                <a href="{{ path('register_for_event', {'event_id': event.id}) }}" class="btn btn-primary {% if not app.user %}
+                                    disabled
+                                {% endif %}" >
+                                    S'inscrire
+                                </a>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+    <form method="post">
+        <h1 class="h3 mb-3 font-weight-normal">Me connecter</h1>
+        <label for="inputEmail">Mail</label>
+        <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
+        <label for="inputPassword">Mot de passe</label>
+        <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+
+        <input type="hidden" name="_csrf_token"
+            value="{{ csrf_token('authenticate') }}"
+        >
+
+        <button class="btn btn-lg btn-primary" type="submit">
+            Connexion
+        </button>
+    </form>
     {% endif %}
+    
 
-    <h1 class="h3 mb-3 font-weight-normal">Me connecter</h1>
-    <label for="inputEmail">Mail</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Mot de passe</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Connexion
-    </button>
-</form>
 {% endblock %}

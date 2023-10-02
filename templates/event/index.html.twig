@@ -17,7 +17,7 @@
                 <th>Date</th>
                 <th>Horaires</th>
                 <th>Titre</th>
-                {% if myevents is defined %}
+                {% if myevents is defined and myevents == true %}
                     <th>Modifer</th>
                     <th>Supprimer</th>
                 {% else %}
@@ -33,7 +33,7 @@
                     <td>{{ event.beginAt|date('Y-m-d') }}</td>
                     <td>{{ event.beginAt|date('H:i') }} - {{ event.endAt|date('H:i') }}</td>
                     <td>{{ event.title }}</td>
-                    {% if myevents is defined %}
+                    {% if myevents is defined and myevents == true %}
                         <td>
                             <a href="/edit-event/{{ event.id }}" class="btn btn-info">
                                 Modifier
@@ -59,7 +59,9 @@
                                 Se désinscrire
                             </a>
                         {% else %}
-                            <a href="{{ path('register_for_event', {'event_id': event.id}) }}" class="btn btn-primary">
+                            <a href="{{ path('register_for_event', {'event_id': event.id}) }}" class="btn btn-primary {% if not app.user %}
+                                disabled
+                            {% endif %}" >
                                 S'inscrire
                             </a>
                         {% endif %}

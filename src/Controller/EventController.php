@@ -4,11 +4,13 @@ namespace App\Controller;
 
 use App\Entity\Event;
 use App\Form\EventType;
+use App\Entity\EventAttendee;
 use App\Form\EventFilterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -62,24 +64,50 @@ class EventController extends AbstractController
     #[Route('/my-events', name: 'myevents')]
     public function myevents(EntityManagerInterface $entityManager): Response
     {
-        $eventsRepository = $entityManager->getRepository(Event::class);
-    
+        $eventAttendeeRepository = $entityManager->getRepository(EventAttendee::class);
+
+        // Récupérez l'utilisateur actuel
         $currentUser = $this->getUser();
+
+        if (!$currentUser) {
+            throw new AccessDeniedException('Vous devez être connecté pour accéder à cette page.');
+        }
+
+        $eventAttendees = $eventAttendeeRepository->findAll();
         
-        $events = $eventsRepository->findBy(['creator' => $currentUser]);
+
+        $userEvents = new ArrayCollection();
+
+        foreach ($eventAttendees as $eventAttendee) {
+        
+            if ($eventAttendee->getUser()[0] == $currentUser){
+                
+                $userEvents->add($eventAttendee->getEvent()[0]);
+
+            } 
+        }
 
         return $this->render('event/index.html.twig', [
-            'myevents' => true,
-            'events' => $events, // Transmettez les événements au template.
+            'myevents' => false,
+            'events' => $userEvents,
             'controller_name' => 'EventController',
         ]);
     }
+
+
+
 
 
     #[Route('/new-event', name: 'newevent')]
     public function add(Request $request, EntityManagerInterface $entityManagerInterface): Response
     {
         $event = new Event();
+
+        $currentUser = $this->getUser();
+
+        if (!$currentUser) {
+            throw new AccessDeniedException('Vous devez être connecté pour accéder à cette page.');
+        }
 
         $form = $this->createForm(EventType::class, $event);
 
@@ -131,7 +159,7 @@ class EventController extends AbstractController
 
             $entityManager->flush();
 
-            $this->addFlash('success', 'Événement modifié avec succès');
+            $this->addFlash('info', 'Événement modifié avec succès');
 
             return $this->redirectToRoute('homepage');
         }
@@ -143,7 +171,7 @@ class EventController extends AbstractController
     }
 
     #[Route('/delete-event/{id}', name: 'delete_event')]
-    public function deleteEvent(int $id, EntityManagerInterface $entityManager): Response
+    public function deleteEvent(int $id, EntityManagerInterface $entityManager, Request $request): Response
     {
         $event = $entityManager->getRepository(Event::class)->find($id);
 
@@ -161,8 +189,12 @@ class EventController extends AbstractController
         $entityManager->remove($event);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Événement supprimé avec succès');
+        $this->addFlash('success', 'Événement supprimé');
 
-        return $this->redirectToRoute('myevents');  
+        // Récupérer l'URL précédente à partir de la session
+        $referer = $request->headers->get('referer');
+        
+        // Rediriger l'utilisateur vers l'URL précédente
+        return $this->redirect($referer);
     }
 }
