@@ -33,7 +33,7 @@ class SecurityController extends AbstractController
             'last_username' => $lastUsername,
             'error' => $error,
             'userEvents' => $userEvents,
-            'myevents' => true // Passer les événements à votre modèle de vue
+            'myevents' => true // Passer les événements à votre vue
         ]);
     }
 

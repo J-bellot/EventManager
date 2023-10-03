@@ -24,7 +24,6 @@ class EventAttendeeController extends AbstractController
         }
 
         // Récupérer l'utilisateur actuellement connecté
-        /** @var UserInterface $user */
         $user = $this->getUser();
 
         if ($user != null){
@@ -76,7 +75,6 @@ class EventAttendeeController extends AbstractController
         }
 
         // Récupérer l'utilisateur actuellement connecté
-        /** @var UserInterface $user */
         $user = $this->getUser();
 
         // Rechercher l'inscription de l'utilisateur à cet événement
