@@ -32,19 +32,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string')]
     private ?string $password = null;
 
-    /**
-     * @Assert\NotBlank()
-     * @Assert\Length(
-     *      min = 8,
-     *      minMessage = "Le mot de passe doit avoir au moins {{ limit }} caractères"
-     * )
-     * @Assert\Regex(
-     *     pattern="/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/",
-     *     message="Le mot de passe doit contenir au moins une majuscule, un chiffre et un caractère spécial."
-     * )
-     */
-    private ?string $plainPassword;
-
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Event::class, orphanRemoval: true)]
     private Collection $events;
 
