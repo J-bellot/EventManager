@@ -6,11 +6,21 @@
     
     {% if filterForm is defined %}
         <h1>Liste des événements</h1>
-        {{ form_start(filterForm) }}
-        {{ form_widget(filterForm.startDate) }}
-        {{ form_widget(filterForm.endDate) }}
-        {{ form_widget(filterForm.filter) }}
-        {{ form_end(filterForm) }}
+        <div class="row my-3">
+            <div class="col">
+                {{ form_start(filterForm) }}
+                {{ form_widget(filterForm.startDate, {'attr': {'class': 'form-control', 'placeholder': 'Date de début'}}) }}
+            </div>
+            <div class="col">
+                {{ form_widget(filterForm.endDate, {'attr': {'class': 'form-control', 'placeholder': 'Date de fin'}}) }}
+            </div>
+            <div class="col">
+                {{ form_widget(filterForm.filter, {'attr': {'class': 'btn btn-primary'}}) }}
+            </div>
+            <div class="col">
+                {{ form_end(filterForm) }}
+            </div>
+        </div>
     {% else %}
         <h1>Mes inscriptions</h1>
     {% endif %}
