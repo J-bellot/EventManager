@@ -51,6 +51,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: EventAttendee::class, mappedBy: 'user')]
     private Collection $eventAttendees;
 
+    #[ORM\Column(length: 255)]
+    private ?string $name = null;
+
     public function __construct()
     {
         $this->eventAttendees = new ArrayCollection();
@@ -158,7 +161,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __toString()
     {
-        return $this->getEmail();
+        return $this->getName();
     }
 
     /**
@@ -184,6 +187,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->eventAttendees->removeElement($eventAttendee)) {
             $eventAttendee->removeUser($this);
         }
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
 
         return $this;
     }
